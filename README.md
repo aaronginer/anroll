@@ -1,29 +1,25 @@
-# AnRoll - Analytic Unrolling of Painted Pottery Surfaces
+# AnRoll: Analytic Unrolling of Painted Pottery Surfaces
 
-## Source Code:
-All source code is available in the src/ folder. src/c++ contains the source code for the model implementation, while src/web contains the source code for the browser-based user interface.
+## Downloads
 
-## Downloads:
-You can download different versions of the tool here.
+### Electron App:
 
-CMD wrapper:
+Windows Installer: https://www.mediafire.com/file/5rqztrea0isoydz/AnRoll+Setup+1.0.3.exe/file
 
-Server wrapper:
+Linux Installer: Soon
 
-User Interface (web-only):
+### Sample Data:
 
-Electron App:
+https://www.mediafire.com/file/xgngoko305497dm/AnRoll_samples.zip/file
 
 ## Usage
 
-There are three different ways of unrolling images:
+For each type of input available in the UI, there is appropriate sample data in the samples package above.
 
-### 1 Command-Line only
-To run the tool through the command line, you only need the CMD wrapper. Running it with .cmd.exe --help will give you an extensive list of available features.
+If you use the "Model" option, make sure the camera looks down the up axis of the vessel (top view) and that it is well centered.
 
-### 2 Server-wrapper + browser interace:
-For this method, you have to download the Server wrapper as well as the web-only user interface. Then simply start the server application either by double clicking, or, alternatively, through the command line, where you can provide a port number (server.exe -p [port]). Then simply open the anroll.html in the Chrome browser (other browsers may not work).
+The image editor options lets you remove handles or other artifacts when necessary.
 
-### 3 Electron App
+Using the "Project" options is simplest to get a quick look at the software and it's features.
 
-The electron app is the complete package of server and UI, packaged as a simple Windows/Debian installer. Simply download, install, and open.
+# We hope you like it :)
