@@ -4,7 +4,11 @@
 
 ### Electron App:
 
-Windows Installer: https://www.mediafire.com/file/5rqztrea0isoydz/AnRoll+Setup+1.0.3.exe/file
+Windows Installer:
+1.0.4:
+https://www.mediafire.com/file/bqmkz2mcjht74bt/AnRoll+Setup+1.0.4.exe/file
+1.0.3:
+https://www.mediafire.com/file/5rqztrea0isoydz/AnRoll+Setup+1.0.3.exe/file
 
 Linux Installer: Soon
 

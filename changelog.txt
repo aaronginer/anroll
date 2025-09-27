@@ -1,0 +1,44 @@
+1.0.2
+
+
+User:
+- added a resolution slider for cylindrical unrolling of models
+- updated scale of radius modifier to be perfectly rolled up at 1 (Curvature Radius = Unrolling Radius)
+
+Dev:
+- increased websocket max message size to server to maximum
+- fixed error calculation for optimization
+- switched to analytical calculation of IFCurve's "a" parameter.
+- fixed blending bug when error image and unrolling would not have the same vertical dimensions
+- replaced EF Spline with integral on-the-fly calculations (slightly slower, but more intuitive)
+- various small adjustments
+
+1.0.3
+
+User:
+- adjusted color-mapping for angular error to display deviation in both directions, and angle measurements are done away from the central axis
+- region of interest selection now only rotates the image if the chosen vertical/horizontal crop is too small.
+- renamed parameters to fit with paper designations (d-Factor->Uniformity, Radius Modifier -> Radius Factor)
+- Added option to change output resolution
+- Added option to also export the mask and cylindrical unrolling
+- Added option to shift the texture vertically to adjust for minor mask misalignments
+- Added model unrolling ambient light control
+- Added option to fill up the input mask (done automatically upon project start)
+
+Dev:
+- fixed distortion map alignment
+- fixed y-range of IFCurve Plot
+- model initial cylinder unrolling now with transparent background
+- Error -> Distortion rename
+- fixed bug unrolling models (mixing of inside and outside texture)
+- Model viewer camera position now based on model size to avoid clipping
+- Fixed model unrolling error (coordinate clipping with camera plane)
+- Changed default texture background to white.
+
+1.0.4
+
+User:
+- [App] Ctrl+R opens window allowing server restart in case of a port overload.
+
+Dev:
+- [App] Ctrl+T opens console
