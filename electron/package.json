@@ -1,0 +1,101 @@
+{
+  "name": "AnRoll",
+  "description": "AnRoll - Analytical Unrolling of Painted Pottery Surfaces",
+  "private": true,
+  "version": "1.0.5",
+  "type": "module",
+  "author": {
+    "name": "Aaron Giner",
+    "email": "contact@gineraaron.com"
+  },
+  "homepage": "https://gineraaron.com",
+  "license": "GPL-2.0-only",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build && electron-builder",
+    "build:win": "tsc && vite build && electron-builder --win",
+    "build:linux": "tsc && vite build && electron-builder --linux",
+    "build:all": "tsc && vite build && electron-builder --win --linux",
+    "build:web": "vite build",
+    "publish:web": "powershell -ExecutionPolicy Bypass -File ./web_publish.ps1",
+    "deploy:web": "npm run build:web && npm run publish:web",
+    "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@ffmpeg/core": "^0.8.3",
+    "@ffmpeg/ffmpeg": "^0.9.4",
+    "@types/delaunator": "^5.0.3",
+    "@types/three": "^0.177.0",
+    "@types/wicg-file-system-access": "^2023.10.6",
+    "bootstrap": "^5.3.6",
+    "delaunator": "^5.0.1",
+    "ml-matrix": "^6.12.1",
+    "motion": "^12.18.1",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0",
+    "recharts": "^3.0.2",
+    "three": "^0.177.0"
+  },
+  "devDependencies": {
+    "@types/react": "^19.1.2",
+    "@types/react-dom": "^19.1.2",
+    "@typescript-eslint/eslint-plugin": "^7.1.1",
+    "@typescript-eslint/parser": "^7.1.1",
+    "@vitejs/plugin-react": "^4.2.1",
+    "electron": "^38.2.0",
+    "electron-builder": "^24.13.3",
+    "eslint": "^8.57.0",
+    "eslint-plugin-react-hooks": "^4.6.0",
+    "eslint-plugin-react-refresh": "^0.4.5",
+    "typescript": "^5.2.2",
+    "vite": "^7.0.1",
+    "vite-plugin-electron": "^0.28.6",
+    "vite-plugin-electron-renderer": "^0.14.5",
+    "vite-plugin-singlefile": "^2.2.0"
+  },
+  "main": "dist-electron/main.js",
+  "build": {
+    "files": [
+      "dist/**/*",
+      "dist-electron/**/*",
+      "!resources/bin/**/*"
+    ],
+    "extraResources": [
+      {
+        "from": "resources/bin",
+        "to": "bin",
+        "filter": [
+          "**/*"
+        ]
+      }
+    ],
+    "nsis": {
+      "oneClick": false,
+      "perMachine": true,
+      "allowToChangeInstallationDirectory": true,
+      "deleteAppDataOnUninstall": true
+    },
+    "win": {
+      "icon": "assets/icon.ico"
+    },
+    "linux": {
+      "icon": "assets/icon.png",
+      "target": [
+        {
+          "target": "AppImage",
+          "arch": [
+            "x64"
+          ]
+        },
+        {
+          "target": "deb",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
+      "maintainer": "Aaron Giner <contact@gineraaron.com>"
+    }
+  }
+}

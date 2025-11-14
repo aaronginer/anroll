@@ -42,3 +42,12 @@ User:
 
 Dev:
 - [App] Ctrl+T opens console
+- Fixed mask loading issue introduced by automatic mask filling
+
+1.0.5 (Public Release)
+User:
+- Uniformity can now interpolate the entire range of possible values (including extreme deformation), unless "Restrict"ed by the user.
+- [App] Ctrl+O let's users switch between online and offline mode (online mode imbeds the latest version of the UI from the AnRoll website)
+
+Dev:
+- Changed calculation of beta_U bounds - is now based on vertical texture resolution and the bounds definitions defined in Appendix A of the paper.

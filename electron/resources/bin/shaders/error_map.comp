@@ -1,0 +1,215 @@
+#version 450
+
+layout(local_size_x = 16, local_size_y = 16) in;
+
+const float PI = 3.141592653;
+const float JITTER = 0.001;
+
+uniform uint width;
+uniform uint height;
+uniform float a;
+uniform float IF;
+uniform float rad_factor;
+uniform float tilt;
+
+layout(std430, binding = 0) buffer OutputX {
+    float out_x[];
+};
+
+layout(std430, binding = 1) buffer OutputY {
+    float out_y[];
+};
+                                    
+layout(std430, binding = 2) buffer OutputT {
+    uint out_t[];
+};
+                                    
+layout(std430, binding = 3) buffer IFIntegralTable {
+    float integral_table[];
+};
+                                    
+layout(std430, binding = 4) buffer ACSplineTable {
+    float a_c_spline_table[];
+};
+                                    
+layout(std430, binding = 5) buffer ContourSplineTable {
+    float contour_spline_table[];
+};
+                                    
+layout(std430, binding = 6) buffer LinearFitTable {
+    float linear_fit_table[];
+};
+
+layout(std430, binding = 7) buffer OutputXErrorColor {
+    float out_x_err[];
+};
+
+layout(std430, binding = 8) buffer OutputYErrorColor {
+    float out_y_err[];
+};
+                                    
+layout(std430, binding = 9) buffer OutputXYErrorColor {
+    float out_xy_err[];
+};
+                                    
+layout(std430, binding = 10) buffer OutputRelativeErrorColor {
+    float out_r_err[];
+};
+
+vec2 get_sc_point(float r, vec2 cp, float arc_offset) {
+    //float angle = 360*(arc_offset/(r*2*PI));                              
+    //float phi = angle*PI/180;
+
+    float phi = arc_offset / r; // simplified
+    float x = r * sin(phi);
+    float y = cp.y - r * cos(phi);
+                   
+    // apply artificial tilt (not really a perspective transformation)
+    float y_flat = cp.y - r;
+    y = mix(y, y_flat, tilt);
+
+    return vec2(x, y);
+}
+
+float get_radius_IF(uint y_id, float cIF)
+{
+    float r_orig = contour_spline_table[y_id];
+    float r_fit = linear_fit_table[y_id];
+                                    
+    return (r_fit + (r_orig - r_fit) * cIF);
+}
+
+uint get_index(uint x, uint y)
+{
+    return y * width + x;
+}
+
+vec3 get_error_color(float t)
+{
+    t = clamp(t-0.5, 0.0, 1.0);
+
+    vec3 c1 = vec3(0.0, 0.114, 0.549);
+    vec3 c2 = vec3(0.161,0.3333, 1.0);
+    vec3 c3 = vec3(1.0, 1.0, 1.0);
+    vec3 c4 = vec3(1.0, 0.157, 0.2);
+    vec3 c5 = vec3(0.557, 0.0, 0.016);
+
+    if (t < 0.45)
+    {
+        return mix(c1, c2, t/0.45);
+    }
+    else if (t < 0.5) 
+    {
+        return mix(c2, c3, (t-0.45)/0.05);
+    }
+    else if (t == 0.5)
+    {
+        return c3;
+    }
+    else if (t <= 0.55)
+    {
+        return mix(c3, c4, (t-0.5)/0.05);
+    }
+    else {
+        return mix(c4, c5, (t-0.55)/0.45);
+    }
+}
+
+vec2 map_points(float x, uint x_index, uint y_index)
+{
+    float h_a = a_c_spline_table[y_index];
+    
+    float arc_offset = 0.0;
+                            
+    if (x != 0.0) {
+        float area = integral_table[x_index];
+        float circ = get_radius_IF(y_index, area / abs(x)) * PI * 2;
+        arc_offset = circ/2 * x;
+    }
+                                
+    // at rad_factor = pi the radius of the semicircle is the circumference of the vase
+    float sc_rad_h = get_radius_IF(y_index, IF) * rad_factor; 
+    vec2 sc_cp = vec2(0, a-h_a + sc_rad_h);
+
+    return get_sc_point(sc_rad_h, sc_cp, arc_offset);
+}
+
+void main() {
+    uint x_id = gl_GlobalInvocationID.x;
+    uint y_id = gl_GlobalInvocationID.y;
+
+    if (x_id >= width || y_id >= height)
+    {
+        return;
+    }
+
+    uint index = get_index(x_id, y_id);
+
+    float x = (float(x_id)/(float(width)-1)-0.5)*2;
+    
+    vec2 point_center = map_points(x, x_id * 2, y_id * 2);
+    vec2 point_right = map_points(x+JITTER, x_id * 2 + 1, y_id * 2);
+    vec2 point_bottom = map_points(x, x_id * 2, y_id * 2 + 1);
+
+    // TEST AREA
+
+    // 
+
+    // store mapped points
+    out_x[index] = point_center.x;     
+    out_y[index] = point_center.y;
+                                    
+    // calculate and store triangles
+    if (x_id > 0 && y_id < height - 1)
+    {
+        // different indexing to not have gaps in the buffer
+        uint t_index = y_id * (width - 1) + (x_id - 1);
+
+        uint t1_1 = y_id*width + x_id-1;
+        uint t1_2 = y_id*width + x_id;
+        uint t1_3 = (y_id+1)*width + x_id-1;
+
+        uint t2_1 = y_id*width + x_id;
+        uint t2_2 = (y_id+1)*width + x_id;
+        uint t2_3 = (y_id+1)*width + x_id-1;
+                                    
+        out_t[t_index*6] = t1_1;
+        out_t[t_index*6+1] = t1_2;
+        out_t[t_index*6+2] = t1_3;
+        out_t[t_index*6+3] = t2_1;
+        out_t[t_index*6+4] = t2_2;
+        out_t[t_index*6+5] = t2_3;
+    }
+    
+    float distance_x = distance(point_center, point_right);
+    float distance_y = distance(point_center, point_bottom);
+
+    // x error
+    float distance_x_norm = (distance_x*2) / JITTER;
+    float circ_orig = contour_spline_table[y_id * 2] * PI * 2;
+    float x_error = distance_x_norm / circ_orig;
+    vec3 x_col = get_error_color(x_error);
+    out_x_err[index*3] = x_col.x;
+    out_x_err[index*3+1] = x_col.y;
+    out_x_err[index*3+2] = x_col.z;
+
+    // y error
+    float distance_y_norm = distance_y / JITTER;
+    float y_error = distance_y_norm / a;
+    vec3 y_col = get_error_color(y_error);
+    out_y_err[index*3] = y_col.x;
+    out_y_err[index*3+1] = y_col.y;
+    out_y_err[index*3+2] = y_col.z;
+
+    // xy error (average)
+    vec3 xy_col = mix(x_col, y_col, 0.5);
+    out_xy_err[index*3] = xy_col.x;
+    out_xy_err[index*3+1] = xy_col.y;
+    out_xy_err[index*3+2] = xy_col.z;
+
+    // relative xy error
+    vec3 r_col = get_error_color(x_error/y_error);
+    out_r_err[index*3] = r_col.x;
+    out_r_err[index*3+1] = r_col.y;
+    out_r_err[index*3+2] = r_col.z;
+}

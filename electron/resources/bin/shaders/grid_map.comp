@@ -1,0 +1,93 @@
+#version 450
+
+layout(local_size_x = 16, local_size_y = 16) in;
+
+const float PI = 3.141592653;
+
+uniform uint width;
+uniform uint height;
+uniform float a;
+uniform float IF;
+uniform float rad_factor;
+uniform float tilt;
+uniform float crop_left;
+uniform float crop_right;
+
+layout(std430, binding = 0) buffer OutputX {
+    float out_x[];
+};
+
+layout(std430, binding = 1) buffer OutputY {
+    float out_y[];
+};
+                                    
+layout(std430, binding = 2) buffer IFIntegralTable {
+    float integral_table[];
+};
+                                    
+layout(std430, binding = 3) buffer ACSplineTable {
+    float a_c_spline_table[];
+};
+                                    
+layout(std430, binding = 4) buffer ContourSplineTable {
+    float contour_spline_table[];
+};
+                                    
+layout(std430, binding = 5) buffer LinearFitTable {
+    float linear_fit_table[];
+};
+
+vec2 get_sc_point(float r, vec2 cp, float arc_offset) {
+    float phi = arc_offset / r;
+    float x = r * sin(phi);
+    float y = cp.y - r * cos(phi);
+    
+    // apply artificial tilt (not really a perspective transformation)
+    float y_flat = cp.y - r;
+    y = mix(y, y_flat, tilt);
+
+    return vec2(x, y);
+}
+
+float get_radius_IF(uint y_id, float cIF)
+{
+    float r_orig = contour_spline_table[y_id];
+    float r_fit = linear_fit_table[y_id];
+                                    
+    return (r_fit + (r_orig - r_fit) * cIF);
+}
+
+void main() {
+    uint x_id = gl_GlobalInvocationID.x;
+    uint y_id = gl_GlobalInvocationID.y;
+
+    if (x_id >= width || y_id >= height)
+    {
+        return;
+    }
+
+    uint index = y_id * width + x_id;
+
+    float x = mix(crop_left, 1.0 - crop_right, float(x_id) / (float(width) - 1));
+    x = (x - 0.5) * 2;
+
+    float h_a = a_c_spline_table[y_id];
+    
+    float arc_offset = 0.0;
+                            
+    if (x != 0.0) {
+        float area = integral_table[x_id];
+        float circ = get_radius_IF(y_id, area / abs(x)) * PI * 2;
+        arc_offset = circ/2 * x;
+    }
+    
+    // at rad_factor = pi the radius of the semicircle is the circumference of the vase
+    float sc_rad_h = get_radius_IF(y_id, IF) * rad_factor; 
+    vec2 sc_cp = vec2(0, a-h_a + sc_rad_h);
+
+    vec2 point = get_sc_point(sc_rad_h, sc_cp, arc_offset);
+
+    // store mapped points
+    out_x[index] = point.x;     
+    out_y[index] = point.y;
+}
