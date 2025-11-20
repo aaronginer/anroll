@@ -1,5 +1,7 @@
 # AnRoll: Analytic Unrolling of Painted Pottery Surfaces
 
+Paper: [AnRoll: Analytic Unrolling of Painted Pottery Surfaces](https://gineraaron.com/anroll/AnRoll_Analytic_Unrolling_of_Painted_Pottery_Surfaces.pdf)
+
 ## Downloads
 
 ### Electron App:
