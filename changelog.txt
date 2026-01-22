@@ -51,3 +51,7 @@ User:
 
 Dev:
 - Changed calculation of beta_U bounds - is now based on vertical texture resolution and the bounds definitions defined in Appendix A of the paper.
+
+1.0.6
+User:
+- Added option to use a UV-texture when loading a model instead of vertex colors

@@ -4,7 +4,7 @@ import { useContext } from "react";
 import SidebarSimpleButton from "./SidebarSimpleButton";
 import SidebarPosNegButton from "./SidebarPosNegButton";
 import SidebarModelUpload from "./SidebarModelUpload";
-import { renderMask, unrollModelCyl, unrollPhotoCyl } from "../util/ModelUtil";
+import { bakeTextureToVertexColors, renderMask, unrollModelCyl, unrollPhotoCyl } from "../util/ModelUtil";
 import { useAppData } from "../data/app_data/AppData";
 import { WebSocketContext } from "../services/WebSocketService";
 import { loadJsonFile, saveJsonFile } from "../util/Util";
@@ -12,6 +12,7 @@ import { initDynamicState, type AppState } from "../data/app_data/State";
 import { createMaskFromPhoto, rotateImage } from "../util/ImageUtil";
 import SidebarDropdownMenu from "./SidebarDropdownMenu";
 import SidebarSectionElementDivider from "./SidebarSectionElementDivider";
+import * as THREE from 'three';
 
 interface ProjectLoaderProps {
 }
@@ -35,7 +36,9 @@ function ProjectLoader({ }: ProjectLoaderProps) {
                 <SidebarImageUpload name="Load Unrolling" id="load_unrolling" imageUrl={appData.state.persistentState.unrollingImageUrl} setImageUrl={appData.updateState("SET_UNROLLING_IMAGE_URL")}/>
             </>}
             {appData.state.dynamicState.loadType == "model" && <>
+                <SidebarImageUpload name="Load Texture (optional)" id="load_texture" imageUrl={appData.state.dynamicState.modelTextureUrl} setImageUrl={appData.updateState("SET_MODEL_TEXTURE_URL")}/>
                 <SidebarModelUpload name="Load Model" id="Load-mask" model={appData.state.dynamicState.model} setModel={appData.updateState("SET_MODEL")} setModelMaterial={appData.updateState("SET_MODEL_MATERIAL")}/>
+                
                 {appData.state.dynamicState.model != null && <>
                     {appData.state.dynamicState.adjustingModel &&
                         <SidebarSimpleButton name="Set Central Axis" id="set-central-axis" callback={appData.hooksRef.current.updateCentralAxisCallback}/>

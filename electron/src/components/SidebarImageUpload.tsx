@@ -44,7 +44,7 @@ function SidebarImageUpload({ name, id, imageUrl, setImageUrl }: SidebarImageUpl
     }
 
     return <div>
-        <input type="file" className="visually-hidden" id={id} accept="image/png" onChange={handleUpload}/>
+        <input type="file" className="visually-hidden" id={id} accept="image/png,image/jpeg" onChange={handleUpload}/>
         <label htmlFor={id} className={"label-button " + (imageUrl != "" ? "label-button-pos" : "label-button-neg")}>
             <strong>
                 {name}

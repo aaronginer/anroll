@@ -53,6 +53,16 @@ export function unrollModelCyl(model: THREE.Mesh | null, material: THREE.Materia
     // remove invalid triangles (seam)
     // duplicate vertices on each side and add new triangles to remove seam in unrolled image
     //******************************************
+    
+    // Ensure index buffer exists (in case of non-indexed geometry)
+    if (!mesh.geometry.index) {
+        const indices = [];
+        for (let i = 0; i < vertices.count; i++) {
+            indices.push(i);
+        }
+        mesh.geometry.setIndex(indices);
+    }
+    
     const indices = mesh.geometry.index;
     const colors = mesh.geometry.attributes.color;
 
@@ -370,4 +380,36 @@ export function destroyObject(obj: THREE.Mesh) {
             obj.material.dispose();
         }
     }
+}
+
+export function bakeTextureToVertexColors(geometry: THREE.BufferGeometry, texture: THREE.Texture): void {
+    if (!geometry.attributes.uv) return;
+    
+    const uvs = geometry.attributes.uv;
+    const positions = geometry.attributes.position;
+    const colors = new Float32Array(positions.count * 3);
+    
+    // Canvas zum Lesen der Textur
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d')!;
+    const img = texture.image;
+    canvas.width = img.width;
+    canvas.height = img.height;
+    ctx.drawImage(img, 0, 0);
+    const imageData = ctx.getImageData(0, 0, img.width, img.height);
+    
+    for (let i = 0; i < positions.count; i++) {
+        const u = uvs.getX(i);
+        const v = 1 - uvs.getY(i); // Y ist geflippt
+        
+        const x = Math.floor(u * (img.width - 1));
+        const y = Math.floor(v * (img.height - 1));
+        const idx = (y * img.width + x) * 4;
+        
+        colors[i * 3 + 0] = imageData.data[idx + 0] / 255;
+        colors[i * 3 + 1] = imageData.data[idx + 1] / 255;
+        colors[i * 3 + 2] = imageData.data[idx + 2] / 255;
+    }
+    
+    geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
 }

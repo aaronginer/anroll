@@ -68,6 +68,7 @@ export type ActionType =
     | "SET_LOAD_TYPE"
     | "SET_MODEL"
     | "SET_MODEL_MATERIAL"
+    | "SET_MODEL_TEXTURE_URL"
     | "SET_CENTRAL_AXIS_SET"
     | "SET_ADJUSTING_MODEL"
     | "SET_MASK_IMAGE_URL"
@@ -667,6 +668,14 @@ export function reducer(state: AppState, { type, payload = null }: Action): AppS
                 dynamicState: {
                     ...state.dynamicState,
                     modelMaterial: payload,
+                }
+            };
+        case "SET_MODEL_TEXTURE_URL":
+            return {
+                ...state,
+                dynamicState: {
+                    ...state.dynamicState,
+                    modelTextureUrl: payload as string,
                 }
             };
         case "SET_CENTRAL_AXIS_SET":

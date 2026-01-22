@@ -2,6 +2,8 @@
 import * as THREE from 'three';
 import { PLYLoader } from 'three/examples/jsm/loaders/PLYLoader.js';
 import { useAlertService } from '../services/AlertService';
+import { useAppData } from '../data/app_data/AppData';
+import { bakeTextureToVertexColors } from '../util/ModelUtil';
 
 interface SidebarModelUploadProps {
     name: string;
@@ -13,6 +15,7 @@ interface SidebarModelUploadProps {
 
 function SidebarModelUpload({ name, id, model, setModel, setModelMaterial }: SidebarModelUploadProps) {
     const alerts = useAlertService();
+    const appData = useAppData();
 
     const handleUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
         if (!e.target.files) return;
@@ -23,11 +26,35 @@ function SidebarModelUpload({ name, id, model, setModel, setModelMaterial }: Sid
             readFileData(file).then(result => {
                 const loader = new PLYLoader();
                 const geometry = loader.parse(result as ArrayBuffer);
-                // const blackMaterial = new THREE.MeshBasicMaterial({ color: 0x000000, side: THREE.DoubleSide });
-                const material = new THREE.MeshStandardMaterial({ vertexColors: geometry.hasAttribute('color'), color: 0xffffff, side: THREE.DoubleSide });
-                const mesh = new THREE.Mesh(geometry, material);
-                setModel(mesh);
-                setModelMaterial(material);
+                
+                if (geometry.hasAttribute('color')) {
+                    const material = new THREE.MeshStandardMaterial({ vertexColors: geometry.hasAttribute('color'), color: 0xffffff, side: THREE.DoubleSide });
+                    const mesh = new THREE.Mesh(geometry, material);
+                    setModel(mesh);
+                    setModelMaterial(material);
+                }
+                else if (geometry.hasAttribute('uv') && appData.state.dynamicState.modelTextureUrl != "") {
+                    const textureLoader = new THREE.TextureLoader();
+                    textureLoader.load(appData.state.dynamicState.modelTextureUrl, (texture) => {
+                        texture.colorSpace = THREE.SRGBColorSpace;
+                        
+                        const material = new THREE.MeshStandardMaterial({ 
+                            map: texture,
+                            side: THREE.DoubleSide 
+                        });
+                        const mesh = new THREE.Mesh(geometry, material);
+                        bakeTextureToVertexColors(mesh.geometry, texture);
+                        setModel(mesh);
+                        setModelMaterial(mesh.material);
+                    });
+                }
+                else
+                {
+                    const blackMaterial = new THREE.MeshBasicMaterial({ color: 0x000000, side: THREE.DoubleSide });
+                    const mesh = new THREE.Mesh(geometry, blackMaterial);
+                    setModel(mesh);
+                    setModelMaterial(blackMaterial);
+                }
             }).catch((e) => {
                 alerts.addAlert("Failed to load model. File is likely too large.");
                 setModel(null);
