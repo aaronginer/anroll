@@ -8,11 +8,11 @@ Paper: [AnRoll: Analytic Unrolling of Painted Pottery Surfaces](https://gineraar
 
 Windows Installer:
 
-[1.0.5 (latest)](http://gineraaron.com/anroll/AnRoll%20Setup%201.0.5.exe)
+[1.0.5 (latest)](https://gineraaron.com/anroll/AnRoll%20Setup%201.0.5.exe)
 
-[1.0.4](http://gineraaron.com/anroll/AnRoll%20Setup%201.0.4.exe)
+[1.0.4](https://gineraaron.com/anroll/AnRoll%20Setup%201.0.4.exe)
 
-[1.0.3](http://gineraaron.com/anroll/AnRoll%20Setup%201.0.3.exe)
+[1.0.3](https://gineraaron.com/anroll/AnRoll%20Setup%201.0.3.exe)
 
 Linux Installer: Soon
 
