@@ -40,22 +40,20 @@ void sendImageData(websocket::stream<tcp::socket> &ws, RenderResult result, std:
 
     // Build buffer
     size_t size = 4 + json_len + image_len;
-    unsigned char *data = new unsigned char[size];
+    std::unique_ptr<unsigned char[]> data = std::make_unique<unsigned char[]>(size);
 
     // Copy 4-byte JSON length
-    std::memcpy(data, &json_len, 4);
+    std::memcpy(data.get(), &json_len, 4);
 
     // Copy JSON
-    std::memcpy(data + 4, meta_str.data(), json_len);
+    std::memcpy(data.get() + 4, meta_str.data(), json_len);
 
     // Copy image data
-    std::memcpy(data + 4 + json_len, result.image, image_len);
+    std::memcpy(data.get() + 4 + json_len, result.image, image_len);
 
     // Send as one binary message
     ws.binary(true);
-    ws.write(boost::asio::buffer(data, size));
-
-    delete[] data;
+    ws.write(boost::asio::buffer(data.get(), size));
 }
 
 void sendModelLoaded(websocket::stream<tcp::socket> &ws)
@@ -67,18 +65,16 @@ void sendModelLoaded(websocket::stream<tcp::socket> &ws)
     uint32_t json_len = meta_str.size();
 
     size_t size = 4 + json_len;
-    unsigned char *data = new unsigned char[size];
+    std::unique_ptr<unsigned char[]> data = std::make_unique<unsigned char[]>(size);
 
     // Copy 4-byte JSON length
-    std::memcpy(data, &json_len, 4);
+    std::memcpy(data.get(), &json_len, 4);
 
     // Copy JSON
-    std::memcpy(data + 4, meta_str.data(), json_len);
+    std::memcpy(data.get() + 4, meta_str.data(), json_len);
 
     ws.binary(true);
-    ws.write(boost::asio::buffer(data, size));
-
-    delete[] data;
+    ws.write(boost::asio::buffer(data.get(), size));
 }
 
 void sendParameterFeedback(websocket::stream<tcp::socket> &ws, boost::json::object feedback)
@@ -95,18 +91,16 @@ void sendParameterFeedback(websocket::stream<tcp::socket> &ws, boost::json::obje
     uint32_t json_len = meta_str.size();
 
     size_t size = 4 + json_len;
-    unsigned char *data = new unsigned char[size];
+    std::unique_ptr<unsigned char[]> data = std::make_unique<unsigned char[]>(size);
 
     // Copy 4-byte JSON length
-    std::memcpy(data, &json_len, 4);
+    std::memcpy(data.get(), &json_len, 4);
 
     // Copy JSON
-    std::memcpy(data + 4, meta_str.data(), json_len);
+    std::memcpy(data.get() + 4, meta_str.data(), json_len);
 
     ws.binary(true);
-    ws.write(boost::asio::buffer(data, size));
-
-    delete[] data;
+    ws.write(boost::asio::buffer(data.get(), size));
 }
 
 void sendPlotData(websocket::stream<tcp::socket> &ws, boost::json::object plot_data)
@@ -119,18 +113,16 @@ void sendPlotData(websocket::stream<tcp::socket> &ws, boost::json::object plot_d
     uint32_t json_len = meta_str.size();
 
     size_t size = 4 + json_len;
-    unsigned char *data = new unsigned char[size];
+    std::unique_ptr<unsigned char[]> data = std::make_unique<unsigned char[]>(size);
 
     // Copy 4-byte JSON length
-    std::memcpy(data, &json_len, 4);
+    std::memcpy(data.get(), &json_len, 4);
 
     // Copy JSON
-    std::memcpy(data + 4, meta_str.data(), json_len);
+    std::memcpy(data.get() + 4, meta_str.data(), json_len);
 
     ws.binary(true);
-    ws.write(boost::asio::buffer(data, size));
-
-    delete[] data;
+    ws.write(boost::asio::buffer(data.get(), size));
 }
 
 void sendFinished(websocket::stream<tcp::socket> &ws)
@@ -142,18 +134,16 @@ void sendFinished(websocket::stream<tcp::socket> &ws)
     uint32_t json_len = meta_str.size();
 
     size_t size = 4 + json_len;
-    unsigned char *data = new unsigned char[size];
+    std::unique_ptr<unsigned char[]> data = std::make_unique<unsigned char[]>(size);
 
     // Copy 4-byte JSON length
-    std::memcpy(data, &json_len, 4);
+    std::memcpy(data.get(), &json_len, 4);
 
     // Copy JSON
-    std::memcpy(data + 4, meta_str.data(), json_len);
+    std::memcpy(data.get() + 4, meta_str.data(), json_len);
 
     ws.binary(true);
-    ws.write(boost::asio::buffer(data, size));
-
-    delete[] data;
+    ws.write(boost::asio::buffer(data.get(), size));
 }
 
 void sendError(websocket::stream<tcp::socket> &ws, std::string error)
@@ -166,18 +156,15 @@ void sendError(websocket::stream<tcp::socket> &ws, std::string error)
     uint32_t json_len = meta_str.size();
 
     size_t size = 4 + json_len;
-    unsigned char *data = new unsigned char[size];
+    std::unique_ptr<unsigned char[]> data = std::make_unique<unsigned char[]>(size);
 
     // Copy 4-byte JSON length
-    std::memcpy(data, &json_len, 4);
-
+    std::memcpy(data.get(), &json_len, 4);
     // Copy JSON
-    std::memcpy(data + 4, meta_str.data(), json_len);
+    std::memcpy(data.get() + 4, meta_str.data(), json_len);
 
     ws.binary(true);
-    ws.write(boost::asio::buffer(data, size));
-
-    delete[] data;
+    ws.write(boost::asio::buffer(data.get(), size));
 }
 
 void doSession(tcp::socket socket)
@@ -186,7 +173,7 @@ void doSession(tcp::socket socket)
 
     GLFWwindow *w = initGLFWContext();
 
-    Model *model = nullptr;
+    std::unique_ptr<Model> model = nullptr;
 
     websocket::stream<tcp::socket> ws{std::move(socket)};
     ws.read_message_max(0);
@@ -200,7 +187,7 @@ void doSession(tcp::socket socket)
         while (true)
         {
             ws.read(buffer);
-            Timer *pt = new Timer("Packet");
+            std::unique_ptr<Timer> pt = std::make_unique<Timer>("Packet");
             std::string message = beast::buffers_to_string(buffer.data());
             buffer.consume(buffer.size());
 
@@ -210,42 +197,32 @@ void doSession(tcp::socket socket)
             if (json_object["command"].as_string() == "loadProject")
             {
                 std::cout << "Loading a new project\n";
-                if (model != nullptr)
-                {
-                    delete model;
-                    model = nullptr;
-                }
 
                 auto const b64_size_mask = boost::beast::detail::base64::decoded_size(json_object["mask"].as_string().size());
                 auto const b64_size_unrolling = boost::beast::detail::base64::decoded_size(json_object["unrolling"].as_string().size());
 
-                unsigned char *img_mask_raw = new unsigned char[b64_size_mask];
-                unsigned char *img_unrolling_raw = new unsigned char[b64_size_unrolling];
+                std::unique_ptr<unsigned char[]> img_mask_raw = std::make_unique<unsigned char[]>(b64_size_mask);
+                std::unique_ptr<unsigned char[]> img_unrolling_raw = std::make_unique<unsigned char[]>(b64_size_unrolling);
 
-                auto const decode_mask = boost::beast::detail::base64::decode(img_mask_raw, json_object["mask"].as_string().c_str(), json_object["mask"].as_string().size());
-                auto const decode_unrolling = boost::beast::detail::base64::decode(img_unrolling_raw, json_object["unrolling"].as_string().c_str(), json_object["unrolling"].as_string().size());
-
+                auto const decode_mask = boost::beast::detail::base64::decode(img_mask_raw.get(), json_object["mask"].as_string().c_str(), json_object["mask"].as_string().size());
+                auto const decode_unrolling = boost::beast::detail::base64::decode(img_unrolling_raw.get(), json_object["unrolling"].as_string().c_str(), json_object["unrolling"].as_string().size());
                 int size_mask = decode_mask.first;
                 int size_unrolling = decode_unrolling.first;
 
                 std::vector<float> x;
                 std::vector<float> a_x;
                 std::vector<float> y;
-                loadMaskRaw(img_mask_raw, size_mask, x, a_x, y);
+                loadMaskRaw(img_mask_raw.get(), size_mask, x, a_x, y);
 
-                model = new Model(x, a_x, y);
+                model = std::make_unique<Model>(x, a_x, y);
 
                 int width, height, channels;
-                unsigned char *img = stbi_load_from_memory(img_unrolling_raw, size_unrolling, &width, &height, &channels, CHANNELS);
+                unsigned char *img = stbi_load_from_memory(img_unrolling_raw.get(), size_unrolling, &width, &height, &channels, CHANNELS);
 
                 model->setImage(img, width, height);
 
                 std::cout << "Loaded a new project\n";
                 sendModelLoaded(ws);
-
-                delete[] img_mask_raw;
-                delete[] img_unrolling_raw;
-
                 sendFinished(ws);
             }
             if (json_object["command"].as_string() == "tune")
@@ -305,16 +282,14 @@ void doSession(tcp::socket socket)
 
                 if (model->getModelPublicProperties()._image_active)
                 {
-                    Timer *t = new Timer("Image");
+                    std::unique_ptr<Timer> t = std::make_unique<Timer>("Image");
                     result = model->renderImage();
-                    delete t;
                 }
 
                 if (model->getModelPublicProperties()._grid_active)
                 {
-                    Timer *t = new Timer("Grid");
+                    std::unique_ptr<Timer> t = std::make_unique<Timer>("Grid");
                     result = model->renderGrid();
-                    delete t;
                 }
 
                 if (model->getModelPublicProperties()._image_active || model->getModelPublicProperties()._grid_active)
@@ -329,33 +304,32 @@ void doSession(tcp::socket socket)
                     result.height = 4;
                     sendImageData(ws, result, "preview");
                     delete[] result.image;
+                    result.image = nullptr;
                 }
-
-                if (model->getModelPublicProperties()._generate_error_maps)
-                {
-                    Timer *t = new Timer("Errors");
-                    model->mapErrors();
-                    sendImageData(ws, model->renderError(0), "xerror");
-                    sendImageData(ws, model->renderError(1), "yerror");
-                    sendImageData(ws, model->renderError(2), "xyerror");
-                    sendImageData(ws, model->renderError(3), "rerror");
-                    sendImageData(ws, model->renderError(4), "aerror");
-                    delete t;
-                }
-
-                if (model->getModelPublicProperties()._plot_interpolation)
-                {
-                    sendPlotData(ws, model->getInterpolationPlotData());
-                }
-                if (model->getModelPublicProperties()._plot_ifcurve)
-                {
-                    sendPlotData(ws, model->getIFCurvePlotData());
-                }
-
-                sendParameterFeedback(ws, model->getParameterFeedback());
-                sendFinished(ws);
             }
-            delete pt;
+
+            if (model->getModelPublicProperties()._generate_error_maps)
+            {
+                std::unique_ptr<Timer> t = std::make_unique<Timer>("Errors");
+                model->mapErrors();
+                sendImageData(ws, model->renderError(0), "xerror");
+                sendImageData(ws, model->renderError(1), "yerror");
+                sendImageData(ws, model->renderError(2), "xyerror");
+                sendImageData(ws, model->renderError(3), "rerror");
+                sendImageData(ws, model->renderError(4), "aerror");
+            }
+
+            if (model->getModelPublicProperties()._plot_interpolation)
+            {
+                sendPlotData(ws, model->getInterpolationPlotData());
+            }
+            if (model->getModelPublicProperties()._plot_ifcurve)
+            {
+                sendPlotData(ws, model->getIFCurvePlotData());
+            }
+
+            sendParameterFeedback(ws, model->getParameterFeedback());
+            sendFinished(ws);
         }
     }
     catch (boost::beast::system_error const &e)
@@ -367,7 +341,6 @@ void doSession(tcp::socket socket)
         sendError(ws, std::string(e.what()));
         std::cerr << "Session error: " << e.what() << std::endl;
     }
-    delete model;
     destroyGLFWWindow(w);
 }
 

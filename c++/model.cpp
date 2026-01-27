@@ -41,11 +41,11 @@ Model::Model(std::vector<float> &x, std::vector<float> &a_x, std::vector<float> 
 
     linearFit();
 
-    _image_mapper = new ImageMapper();
-    _error_mapper = new ErrorMapper();
-    _grid_mapper = new GridMapper();
-    _renderer = new Renderer();
-    _ifcurve = new IFCurve(_public_properties._d_factor, _public_properties._interpolation_factor);
+    _image_mapper = std::make_unique<ImageMapper>();
+    _error_mapper = std::make_unique<ErrorMapper>();
+    _grid_mapper = std::make_unique<GridMapper>();
+    _renderer = std::make_unique<Renderer>();
+    _ifcurve = std::make_unique<IFCurve>(_public_properties._d_factor, _public_properties._interpolation_factor);
 
     registerObservers();
 }
@@ -56,12 +56,6 @@ Model::~Model()
     {
         stbi_image_free(_image);
     }
-
-    delete _image_mapper;
-    delete _grid_mapper;
-    delete _error_mapper;
-    delete _renderer;
-    delete _ifcurve;
 }
 
 void Model::createSplines(float smoothing)

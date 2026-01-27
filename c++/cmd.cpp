@@ -68,7 +68,7 @@ int main(int argc, char *argv[])
     loadMask(mask_raw, width, height, x, a_x, y);
 
     // load model
-    Model *model = new Model(x, a_x, y);
+    std::unique_ptr<Model> model = std::make_unique<Model>(x, a_x, y);
 
     unsigned char *img = stbi_load(unrolling.c_str(), &width, &height, &channels, CHANNELS);
 
@@ -101,10 +101,9 @@ int main(int argc, char *argv[])
     // export the image
     if (image_active || grid_active)
     {
-        stbi_write_png(output_file.c_str(), r.width, r.height, CHANNELS, r.image, 0);
+        stbi_write_png(output_file.c_str(), r.width, r.height, CHANNELS, r.image.get(), 0);
     }
 
-    delete model;
     stbi_image_free(img);
     stbi_image_free(mask_raw);
     destroyGLFWWindow(w);

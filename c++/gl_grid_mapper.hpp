@@ -7,6 +7,7 @@
 #include <fstream>
 #include <vector>
 #include <cstring>
+#include <memory>
 
 #include "util.hpp"
 
@@ -24,15 +25,11 @@ public:
     GridMapResult(int width, int height)
     {
         int size = width * height;
-        _x = new float[size];
-        _y = new float[size];
+        _x = std::make_unique<float[]>(size);
+        _y = std::make_unique<float[]>(size);
     }
 
-    ~GridMapResult()
-    {
-        delete[] _x;
-        delete[] _y;
-    }
+    ~GridMapResult() = default;
 
     RenderData getRenderData()
     {
@@ -42,8 +39,8 @@ public:
     std::vector<float> _r_x;
     std::vector<float> _r_y;
     std::vector<unsigned int> _r_l; // line buffer
-    float *_x;
-    float *_y;
+    std::unique_ptr<float[]> _x;
+    std::unique_ptr<float[]> _y;
 };
 
 #define NUM_BUFFERS_GRID 6

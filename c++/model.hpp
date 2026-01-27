@@ -184,12 +184,12 @@ public:
 
     ErrorMapper *getCPUErrorMapper()
     {
-        return _error_mapper;
+        return _error_mapper.get();
     }
 
     IFCurve *getIFCurve()
     {
-        return _ifcurve;
+        return _ifcurve.get();
     }
 
     Vec4 getCirclePoint(double r, Vec4 cp, double arc_offset);
@@ -211,12 +211,11 @@ private:
     unsigned char *_image;
     int _image_width, _image_height;
 
-    ImageMapper *_image_mapper = nullptr;
-    GridMapper *_grid_mapper = nullptr;
-    ErrorMapper *_error_mapper = nullptr;
-    Renderer *_renderer = nullptr;
-    IFCurve *_ifcurve = nullptr;
-
+    std::unique_ptr<ImageMapper> _image_mapper = nullptr;
+    std::unique_ptr<GridMapper> _grid_mapper = nullptr;
+    std::unique_ptr<ErrorMapper> _error_mapper = nullptr;
+    std::unique_ptr<Renderer> _renderer = nullptr;
+    std::unique_ptr<IFCurve> _ifcurve = nullptr;
     // ************* dynamic members
     Bounds _x_bounds;
     Bounds _a_x_bounds;

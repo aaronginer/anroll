@@ -5,6 +5,7 @@
 #include <fstream>
 #include <vector>
 #include <cstring>
+#include <memory>
 
 #include "util.hpp"
 
@@ -23,35 +24,21 @@ public:
         _height = height;
         _size = size;
 
-        _x = new float[size];
-        _y = new float[size];
-        _t = new unsigned int[size * 2 * 3];
-        _e_x = new double[size];
-        _e_y = new double[size];
-        _e_r = new double[size];
-        _e_a = new double[size];
-        _c_x = new float[size * 3];
-        _c_y = new float[size * 3];
-        _c_xy = new float[size * 3];
-        _c_r = new float[size * 3];
-        _c_a = new float[size * 3];
+        _x = std::make_unique<float[]>(size);
+        _y = std::make_unique<float[]>(size);
+        _t = std::make_unique<unsigned int[]>(size * 2 * 3);
+        _e_x = std::make_unique<double[]>(size);
+        _e_y = std::make_unique<double[]>(size);
+        _e_r = std::make_unique<double[]>(size);
+        _e_a = std::make_unique<double[]>(size);
+        _c_x = std::make_unique<float[]>(size * 3);
+        _c_y = std::make_unique<float[]>(size * 3);
+        _c_xy = std::make_unique<float[]>(size * 3);
+        _c_r = std::make_unique<float[]>(size * 3);
+        _c_a = std::make_unique<float[]>(size * 3);
     }
 
-    ~CPUErrorMapResult()
-    {
-        delete[] _x;
-        delete[] _y;
-        delete[] _t;
-        delete[] _e_x;
-        delete[] _e_y;
-        delete[] _e_r;
-        delete[] _e_a;
-        delete[] _c_x;
-        delete[] _c_y;
-        delete[] _c_xy;
-        delete[] _c_r;
-        delete[] _c_a;
-    }
+    ~CPUErrorMapResult() = default;
 
     double getWeightedError(int index, std::vector<float> weights) const
     {
@@ -72,42 +59,42 @@ public:
 
     RenderData getRenderDataXError()
     {
-        return {_x, _y, _c_x, _t};
+        return {_x.get(), _y.get(), _c_x.get(), _t.get()};
     }
 
     RenderData getRenderDataYError()
     {
-        return {_x, _y, _c_y, _t};
+        return {_x.get(), _y.get(), _c_y.get(), _t.get()};
     }
 
     RenderData getRenderDataXYError()
     {
-        return {_x, _y, _c_xy, _t};
+        return {_x.get(), _y.get(), _c_xy.get(), _t.get()};
     }
 
     RenderData getRenderDataRError()
     {
-        return {_x, _y, _c_r, _t};
+        return {_x.get(), _y.get(), _c_r.get(), _t.get()};
     }
 
     RenderData getRenderDataAError()
     {
-        return {_x, _y, _c_a, _t};
+        return {_x.get(), _y.get(), _c_a.get(), _t.get()};
     }
 
     int _width = 0, _height = 0, _size = 0;
-    float *_x;
-    float *_y;
-    unsigned int *_t;
-    double *_e_x; // error in x direction
-    double *_e_y; // error in y direction
-    double *_e_r; // error relative x/y
-    double *_e_a; // error in angle
-    float *_c_x;
-    float *_c_y;
-    float *_c_xy;
-    float *_c_r;
-    float *_c_a;
+    std::unique_ptr<float[]> _x;
+    std::unique_ptr<float[]> _y;
+    std::unique_ptr<unsigned int[]> _t;
+    std::unique_ptr<double[]> _e_x; // error in x direction
+    std::unique_ptr<double[]> _e_y; // error in y direction
+    std::unique_ptr<double[]> _e_r; // error relative x/y
+    std::unique_ptr<double[]> _e_a; // error in angle
+    std::unique_ptr<float[]> _c_x;
+    std::unique_ptr<float[]> _c_y;
+    std::unique_ptr<float[]> _c_xy;
+    std::unique_ptr<float[]> _c_r;
+    std::unique_ptr<float[]> _c_a;
 };
 
 class ErrorMapper
@@ -129,6 +116,6 @@ public:
 
     int _width = 0, _height = 0, _size = 0;
     double _a, _IF, _rad_factor, _tilt, _crop_left, _crop_right;
+    std::unique_ptr<CPUErrorMapResult> _result = nullptr;
     MappingTables *_mapping_tables = nullptr;
-    CPUErrorMapResult *_result = nullptr;
 };

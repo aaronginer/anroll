@@ -43,7 +43,7 @@ void Renderer::setRenderSize(int render_size, float hw_retio)
 
     _render_width = render_width;
     _render_height = render_height;
-    _output_buffer.resize(_render_width * render_height * 4);
+    _output_buffer = std::make_unique<unsigned char[]>(_render_width * render_height * 4);
     // resize window
     glfwSetWindowSize(glfwGetCurrentContext(), render_width, render_height);
     // reallocate texture memory
@@ -127,7 +127,7 @@ void Renderer::createProgram()
 
 void Renderer::readResult()
 {
-    glReadPixels(0, 0, _render_width, _render_height, GL_RGBA, GL_UNSIGNED_BYTE, _output_buffer.data());
+    glReadPixels(0, 0, _render_width, _render_height, GL_RGBA, GL_UNSIGNED_BYTE, _output_buffer.get());
 }
 
 RenderResult Renderer::renderTriangles(int width, int height, int render_size, RenderData render_data)
@@ -154,7 +154,7 @@ RenderResult Renderer::renderTriangles(int width, int height, int render_size, R
 
     readResult();
 
-    return {_output_buffer.data(), (size_t)_render_width, (size_t)_render_height};
+    return {_output_buffer.get(), (size_t)_render_width, (size_t)_render_height};
 }
 
 RenderResult Renderer::renderLines(int width, int height, int num_points, int num_indices, int render_size, bool render_on_top, int line_size, RenderData render_data)
@@ -179,7 +179,7 @@ RenderResult Renderer::renderLines(int width, int height, int num_points, int nu
 
     readResult();
 
-    return {_output_buffer.data(), (size_t)_render_width, (size_t)_render_height};
+    return {_output_buffer.get(), (size_t)_render_width, (size_t)_render_height};
 }
 
 void Renderer::runTriangles()

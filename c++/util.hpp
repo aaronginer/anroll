@@ -2,6 +2,7 @@
 #define UTIL_H
 
 #include <boost/json.hpp>
+#include <memory>
 
 #define CHANNELS 4
 #define GRID_SUBDIVISIONS 100
@@ -16,24 +17,18 @@ class MappingTables
 public:
     MappingTables(int width, int height)
     {
-        _if_curve_integrals = new float[width];
-        _x_a_x = new float[height];
-        _a_x_y = new float[height];
-        _linear_fit = new float[height];
+        _if_curve_integrals = std::make_unique<float[]>(width);
+        _x_a_x = std::make_unique<float[]>(height);
+        _a_x_y = std::make_unique<float[]>(height);
+        _linear_fit = std::make_unique<float[]>(height);
     }
 
-    ~MappingTables()
-    {
-        delete[] _if_curve_integrals;
-        delete[] _x_a_x;
-        delete[] _a_x_y;
-        delete[] _linear_fit;
-    }
+    ~MappingTables() = default;
 
-    float *_if_curve_integrals;
-    float *_x_a_x;
-    float *_a_x_y;
-    float *_linear_fit;
+    std::unique_ptr<float[]> _if_curve_integrals;
+    std::unique_ptr<float[]> _x_a_x;
+    std::unique_ptr<float[]> _a_x_y;
+    std::unique_ptr<float[]> _linear_fit;
 };
 
 typedef struct RenderData

@@ -7,6 +7,7 @@
 #include <fstream>
 #include <vector>
 #include <cstring>
+#include <memory>
 
 #include "util.hpp"
 
@@ -21,29 +22,23 @@ public:
     ImageMapResult(int width, int height)
     {
         int size = width * height;
-        _x = new float[size];
-        _y = new float[size];
-        _c = new float[size * 3];
-        _t = new unsigned int[size * 2 * 3];
+        _x = std::make_unique<float[]>(size);
+        _y = std::make_unique<float[]>(size);
+        _c = std::make_unique<float[]>(size * 3);
+        _t = std::make_unique<unsigned int[]>(size * 2 * 3);
     }
 
-    ~ImageMapResult()
-    {
-        delete[] _x;
-        delete[] _y;
-        delete[] _c;
-        delete[] _t;
-    }
+    ~ImageMapResult() = default;
 
     RenderData getRenderData()
     {
-        return {_x, _y, _c, _t};
+        return {_x.get(), _y.get(), _c.get(), _t.get()};
     }
 
-    float *_x;
-    float *_y;
-    float *_c;
-    unsigned int *_t;
+    std::unique_ptr<float[]> _x;
+    std::unique_ptr<float[]> _y;
+    std::unique_ptr<float[]> _c;
+    std::unique_ptr<unsigned int[]> _t;
 };
 
 #define NUM_BUFFERS_IMG 8

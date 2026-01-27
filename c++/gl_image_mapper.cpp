@@ -81,18 +81,18 @@ void ImageMapper::loadImageTexture(int width, int height, unsigned char *image)
 
 void ImageMapper::fillBuffers(MappingTables &mapping_tables)
 {
-    glNamedBufferSubData(_buffers[4], 0, _width * sizeof(float), mapping_tables._if_curve_integrals);
-    glNamedBufferSubData(_buffers[5], 0, _height * sizeof(float), mapping_tables._x_a_x);
-    glNamedBufferSubData(_buffers[6], 0, _height * sizeof(float), mapping_tables._a_x_y);
-    glNamedBufferSubData(_buffers[7], 0, _height * sizeof(float), mapping_tables._linear_fit);
+    glNamedBufferSubData(_buffers[4], 0, _width * sizeof(float), mapping_tables._if_curve_integrals.get());
+    glNamedBufferSubData(_buffers[5], 0, _height * sizeof(float), mapping_tables._x_a_x.get());
+    glNamedBufferSubData(_buffers[6], 0, _height * sizeof(float), mapping_tables._a_x_y.get());
+    glNamedBufferSubData(_buffers[7], 0, _height * sizeof(float), mapping_tables._linear_fit.get());
 }
 
 void ImageMapper::readBuffers()
 {
-    glGetNamedBufferSubData(_buffers[0], 0, _size * sizeof(float), _result->_x);
-    glGetNamedBufferSubData(_buffers[1], 0, _size * sizeof(float), _result->_y);
-    glGetNamedBufferSubData(_buffers[2], 0, _size * 3 * sizeof(float), _result->_c);
-    glGetNamedBufferSubData(_buffers[3], 0, _size * 2 * 3 * sizeof(unsigned int), _result->_t);
+    glGetNamedBufferSubData(_buffers[0], 0, _size * sizeof(float), _result->_x.get());
+    glGetNamedBufferSubData(_buffers[1], 0, _size * sizeof(float), _result->_y.get());
+    glGetNamedBufferSubData(_buffers[2], 0, _size * 3 * sizeof(float), _result->_c.get());
+    glGetNamedBufferSubData(_buffers[3], 0, _size * 2 * 3 * sizeof(unsigned int), _result->_t.get());
 }
 
 void ImageMapper::fillUniforms(float arc_length, float interpolation_factor, float radius_modifier, float image_rotation, float vertical_shift, float tilt, float crop_bottom, float crop_top, float crop_left, float crop_right)

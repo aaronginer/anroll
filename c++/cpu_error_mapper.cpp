@@ -3,22 +3,11 @@
 //********************************/
 // CPUErrorMapper implementation
 
-ErrorMapper::~ErrorMapper()
-{
-    if (_result != nullptr)
-    {
-        delete _result;
-    }
-}
+ErrorMapper::~ErrorMapper() = default;
 
 void ErrorMapper::setParams(int width, int height, double a, double IF, double rad_factor, MappingTables *mapping_tables, double tilt, double crop_left, double crop_right)
 {
     assert(width != 0 && "Called setSize with invalid width");
-
-    if (_result != nullptr)
-    {
-        delete _result;
-    }
 
     _width = width;
     _height = height;
@@ -32,7 +21,7 @@ void ErrorMapper::setParams(int width, int height, double a, double IF, double r
     _crop_right = crop_right;
     _mapping_tables = mapping_tables;
 
-    _result = new CPUErrorMapResult(width, height);
+    _result = std::make_unique<CPUErrorMapResult>(width, height);
 }
 
 Vec4 ErrorMapper::getCirclePoint(double r, Vec4 cp, double arc_offset)

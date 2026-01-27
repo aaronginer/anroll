@@ -166,13 +166,13 @@ int main(int argc, char *argv[])
                 if (export_error_maps)
                 {
                     auto eres = model->renderError(0);
-                    stbi_write_png(std::string("err_h_if=").append(std::to_string(val_if)).append("_d=").append(std::to_string(val_d)).append("_r=").append(std::to_string(val_r)).append("_ef=").append(y_distortion ? "true" : "false").append(".png").c_str(), eres.width, eres.height, CHANNELS, eres.image, 0);
+                    stbi_write_png(std::string("err_h_if=").append(std::to_string(val_if)).append("_d=").append(std::to_string(val_d)).append("_r=").append(std::to_string(val_r)).append("_ef=").append(y_distortion ? "true" : "false").append(".png").c_str(), eres.width, eres.height, CHANNELS, eres.image.get(), 0);
                     eres = model->renderError(1);
-                    stbi_write_png(std::string("err_v_if=").append(std::to_string(val_if)).append("_d=").append(std::to_string(val_d)).append("_r=").append(std::to_string(val_r)).append("_ef=").append(y_distortion ? "true" : "false").append(".png").c_str(), eres.width, eres.height, CHANNELS, eres.image, 0);
+                    stbi_write_png(std::string("err_v_if=").append(std::to_string(val_if)).append("_d=").append(std::to_string(val_d)).append("_r=").append(std::to_string(val_r)).append("_ef=").append(y_distortion ? "true" : "false").append(".png").c_str(), eres.width, eres.height, CHANNELS, eres.image.get(), 0);
                     eres = model->renderError(3);
-                    stbi_write_png(std::string("err_r_if=").append(std::to_string(val_if)).append("_d=").append(std::to_string(val_d)).append("_r=").append(std::to_string(val_r)).append("_ef=").append(y_distortion ? "true" : "false").append(".png").c_str(), eres.width, eres.height, CHANNELS, eres.image, 0);
+                    stbi_write_png(std::string("err_r_if=").append(std::to_string(val_if)).append("_d=").append(std::to_string(val_d)).append("_r=").append(std::to_string(val_r)).append("_ef=").append(y_distortion ? "true" : "false").append(".png").c_str(), eres.width, eres.height, CHANNELS, eres.image.get(), 0);
                     eres = model->renderError(4);
-                    stbi_write_png(std::string("err_a_if=").append(std::to_string(val_if)).append("_d=").append(std::to_string(val_d)).append("_r=").append(std::to_string(val_r)).append("_ef=").append(y_distortion ? "true" : "false").append(".png").c_str(), eres.width, eres.height, CHANNELS, eres.image, 0);
+                    stbi_write_png(std::string("err_a_if=").append(std::to_string(val_if)).append("_d=").append(std::to_string(val_d)).append("_r=").append(std::to_string(val_r)).append("_ef=").append(y_distortion ? "true" : "false").append(".png").c_str(), eres.width, eres.height, CHANNELS, eres.image.get(), 0);
                 }
 
                 if (export_result)
@@ -192,7 +192,7 @@ int main(int argc, char *argv[])
                     rendered++;
                     if (image_active || grid_active)
                     {
-                        stbi_write_png(std::string("res_if=").append(std::to_string(val_if)).append("_d=").append(std::to_string(val_d)).append("_r=").append(std::to_string(val_r)).append("_ef=").append(y_distortion ? "true" : "false").append(".png").c_str(), r.width, r.height, CHANNELS, r.image, 0);
+                        stbi_write_png(std::string("res_if=").append(std::to_string(val_if)).append("_d=").append(std::to_string(val_d)).append("_r=").append(std::to_string(val_r)).append("_ef=").append(y_distortion ? "true" : "false").append(".png").c_str(), r.width, r.height, CHANNELS, r.image.get(), 0);
                     }
                 }
 

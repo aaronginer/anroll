@@ -7,6 +7,7 @@
 #include <fstream>
 #include <vector>
 #include <cstring>
+#include <memory>
 
 #include "util.hpp"
 
@@ -36,7 +37,7 @@ public:
     GLuint _program;
     int _width = 0, _height = 0, _size = 0;
     int _render_width = 0, _render_height = 0;
-    std::vector<unsigned char> _output_buffer;
+    std::unique_ptr<unsigned char[]> _output_buffer;
     float _c_min_x, _c_max_x;
     float _c_min_y, _c_max_y;
 
